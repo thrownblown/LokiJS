@@ -1,11 +1,39 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lokijs.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lokijs.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * LokiJS
- * @author Joe Minichino <joe.minichino@gmail.com>
+ * @author Joe Minichino &lt;joe.minichino@gmail.com>
  *
  * A lightweight document oriented javascript database
  */
 (function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
+  if (typeof define === 'function' &amp;&amp; define.amd) {
     // AMD
     define([], factory);
   } else if (typeof exports === 'object') {
@@ -41,7 +69,7 @@
         if (++depth >= 10) return subObj;
 
         for (prop in subObj) {
-          if (typeof subObj[prop] === 'string' && subObj[prop].indexOf("[%lktxp]") === 0) {
+          if (typeof subObj[prop] === 'string' &amp;&amp; subObj[prop].indexOf("[%lktxp]") === 0) {
             pname = subObj[prop].substring(8);
             if (params.hasOwnProperty(pname)) {
               subObj[prop] = params[pname];
@@ -62,7 +90,7 @@
         if (typeof params === 'undefined') return transform;
 
         // iterate all steps in the transform array
-        for (idx = 0; idx < transform.length; idx++) {
+        for (idx = 0; idx &lt; transform.length; idx++) {
           // clone transform so our scan and replace can operate directly on cloned transform
           clonedStep = JSON.parse(JSON.stringify(transform[idx]));
           resolvedTransform.push(Utils.resolveTransformObject(clonedStep, params));
@@ -82,7 +110,7 @@
 
       // 'falsy' and Boolean handling
       if (!prop1 || !prop2 || prop1 === true || prop2 === true) {
-        if ((prop1 === true || prop1 === false) && (prop2 === true || prop2 === false)) {
+        if ((prop1 === true || prop1 === false) &amp;&amp; (prop2 === true || prop2 === false)) {
           if (equal) {
             return prop1 === prop2;
           } else {
@@ -106,7 +134,7 @@
         return equal;
       }
 
-      if (prop1 < prop2) {
+      if (prop1 &lt; prop2) {
         return true;
       }
 
@@ -122,7 +150,7 @@
         return equal;
       }
 
-      if (cv1 < cv2) {
+      if (cv1 &lt; cv2) {
         return true;
       }
 
@@ -134,7 +162,7 @@
 
       // 'falsy' and Boolean handling
       if (!prop1 || !prop2 || prop1 === true || prop2 === true) {
-        if ((prop1 === true || prop1 === false) && (prop2 === true || prop2 === false)) {
+        if ((prop1 === true || prop1 === false) &amp;&amp; (prop2 === true || prop2 === false)) {
           if (equal) {
             return prop1 === prop2;
           } else {
@@ -162,7 +190,7 @@
         return true;
       }
 
-      if (prop1 < prop2) {
+      if (prop1 &lt; prop2) {
         return false;
       }
 
@@ -209,7 +237,7 @@
     function compoundeval(properties, obj1, obj2) {
       var res = 0;
       var prop, field;
-      for (var i = 0, len = properties.length; i < len; i++) {
+      for (var i = 0, len = properties.length; i &lt; len; i++) {
         prop = properties[i];
         field = prop[0];
         res = sortHelper(obj1[field], obj2[field], prop[1]);
@@ -227,7 +255,7 @@
       var pathSegment = null;
       var subIndex = 0, subLen = 0, subPath = null;
 
-      for (var segmIndex = 0, segmCount = propPath.length; segmIndex < segmCount; segmIndex++) {
+      for (var segmIndex = 0, segmCount = propPath.length; segmIndex &lt; segmCount; segmIndex++) {
         pathSegment = propPath[segmIndex];
 
         // if the dot notation is invalid for the current document, then ignore this document
@@ -238,15 +266,15 @@
         if (Array.isArray(root)) {
           subLen = root.length;
           // iterate all sub-array items to see if any yield hits
-          if ((segmIndex + 1) < segmCount) {
+          if ((segmIndex + 1) &lt; segmCount) {
             subPath = propPath.slice(segmIndex + 1);
-            for (subIndex = 0; subIndex < subLen; subIndex++) {
+            for (subIndex = 0; subIndex &lt; subLen; subIndex++) {
               if (dotSubScan(root[subIndex], subPath, fun, value)) {
                 return true;
               }
             }
           } else {
-            for (subIndex = 0; subIndex < subLen; subIndex++) {
+            for (subIndex = 0; subIndex &lt; subLen; subIndex++) {
               if (fun(root[subIndex][pathSegment], value)) {
                 return true;
               }
@@ -352,7 +380,7 @@
       },
 
       $containsString: function (a, b) {
-        return (typeof a === 'string') && (a.indexOf(b) !== -1);
+        return (typeof a === 'string') &amp;&amp; (a.indexOf(b) !== -1);
       },
 
       $containsNone: function (a, b) {
@@ -414,7 +442,7 @@
       },
 
       $and: function (a, b) {
-        for (var idx = 0, len = b.length; idx < len; idx += 1) {
+        for (var idx = 0, len = b.length; idx &lt; len; idx += 1) {
           if (!doQueryOp(a, b[idx])) {
             return false;
           }
@@ -423,7 +451,7 @@
       },
 
       $or: function (a, b) {
-        for (var idx = 0, len = b.length; idx < len; idx += 1) {
+        for (var idx = 0, len = b.length; idx &lt; len; idx += 1) {
           if (doQueryOp(a, b[idx])) {
             return true;
           }
@@ -472,7 +500,7 @@
 
       i = objarray.length-1;
 
-      for(;i<=0;i--) {
+      for(;i&lt;=0;i--) {
         result.push(clone(objarray[i], method));
       }
 
@@ -481,7 +509,7 @@
 
     function localStorageAvailable() {
       try {
-        return (window && window.localStorage !== undefined && window.localStorage !== null);
+        return (window &amp;&amp; window.localStorage !== undefined &amp;&amp; window.localStorage !== null);
       } catch (e) {
         return false;
       }
@@ -537,7 +565,7 @@
      */
     LokiEventEmitter.prototype.emit = function (eventName, data) {
       var self = this;
-      if (eventName && this.events[eventName]) {
+      if (eventName &amp;&amp; this.events[eventName]) {
         this.events[eventName].forEach(function (listener) {
           if (self.asyncListeners) {
             setTimeout(function () {
@@ -610,7 +638,7 @@
       this.persistenceAdapter = null;
 
       // enable console output if verbose flag is set (disabled by default)
-      this.verbose = options && options.hasOwnProperty('verbose') ? options.verbose : false;
+      this.verbose = options &amp;&amp; options.hasOwnProperty('verbose') ? options.verbose : false;
 
       this.events = {
         'init': [],
@@ -626,12 +654,12 @@
           return 'NODEJS';
         }
 
-        if (typeof global !== 'undefined' && global.window) {
+        if (typeof global !== 'undefined' &amp;&amp; global.window) {
           return 'NODEJS'; //node-webkit
         }
 
         if (typeof document !== 'undefined') {
-          if (document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1) {
+          if (document.URL.indexOf('http://') === -1 &amp;&amp; document.URL.indexOf('https://') === -1) {
             return 'CORDOVA';
           }
           return 'BROWSER';
@@ -643,7 +671,7 @@
       // if they do not specify an options.env we want to detect env rather than default to nodejs.
       // currently keeping two properties for similar thing (options.env and options.persistenceMethod)
       //   might want to review whether we can consolidate.
-      if (options && options.hasOwnProperty('env')) {
+      if (options &amp;&amp; options.hasOwnProperty('env')) {
         this.ENV = options.env;
       } else {
         this.ENV = getENV();
@@ -689,7 +717,7 @@
      * @param {boolean} options.autoload - enables autoload on loki instantiation
      * @param {function} options.autoloadCallback - user callback called after database load
      * @param {adapter} options.adapter - an instance of a loki persistence adapter
-     * @param {boolean} initialConfig - (internal) true is passed when loki ctor is invoking
+     * @param {boolean} initialConfig - (internal) true is passed when loki ctor is invoking 
      * @memberof Loki
      */
     Loki.prototype.configureOptions = function (options, initialConfig) {
@@ -733,7 +761,7 @@
 
 
         // if they want to load database on loki instantiation, now is a good time to load... after adapter set and before possible autosave initiation
-        if (options.autoload && initialConfig) {
+        if (options.autoload &amp;&amp; initialConfig) {
           // for autoload, let the constructor complete before firing callback
           var self = this;
           setTimeout(function () {
@@ -746,7 +774,7 @@
           this.autosaveInterval = parseInt(this.options.autosaveInterval, 10);
         }
 
-        if (this.options.hasOwnProperty('autosave') && this.options.autosave) {
+        if (this.options.hasOwnProperty('autosave') &amp;&amp; this.options.autosave) {
           this.autosaveDisable();
           this.autosave = true;
 
@@ -833,7 +861,7 @@
       var i,
         len = this.collections.length;
 
-      for (i = 0; i < len; i += 1) {
+      for (i = 0; i &lt; len; i += 1) {
         if (this.collections[i].name === collectionName) {
           return this.collections[i];
         }
@@ -868,12 +896,12 @@
       var i,
         len = this.collections.length;
 
-      for (i = 0; i < len; i += 1) {
+      for (i = 0; i &lt; len; i += 1) {
         if (this.collections[i].name === collectionName) {
           var tmpcol = new Collection(collectionName, {});
           var curcol = this.collections[i];
           for (var prop in curcol) {
-            if (curcol.hasOwnProperty(prop) && tmpcol.hasOwnProperty(prop)) {
+            if (curcol.hasOwnProperty(prop) &amp;&amp; tmpcol.hasOwnProperty(prop)) {
                 curcol[prop] = tmpcol[prop];
             }
           }
@@ -957,7 +985,7 @@
 
       this.collections = [];
 
-      for (i; i < len; i += 1) {
+      for (i; i &lt; len; i += 1) {
         coll = dbObject.collections[i];
         copyColl = this.addCollection(coll.name);
 
@@ -971,11 +999,11 @@
         // load each element individually
         clen = coll.data.length;
         j = 0;
-        if (options && options.hasOwnProperty(coll.name)) {
+        if (options &amp;&amp; options.hasOwnProperty(coll.name)) {
 
           var loader = options[coll.name].inflate ? options[coll.name].inflate : Utils.copyProperties;
 
-          for (j; j < clen; j++) {
+          for (j; j &lt; clen; j++) {
             var collObj = new(options[coll.name].proto)();
             loader(coll.data[j], collObj);
             copyColl.data[j] = collObj;
@@ -983,7 +1011,7 @@
           }
         } else {
 
-          for (j; j < clen; j++) {
+          for (j; j &lt; clen; j++) {
             copyColl.data[j] = coll.data[j];
             copyColl.addAutoUpdateObserver(copyColl.data[j]);
           }
@@ -1004,7 +1032,7 @@
         copyColl.uniqueNames = [];
         if (coll.hasOwnProperty("uniqueNames")) {
           copyColl.uniqueNames = coll.uniqueNames;
-          for (j = 0; j < copyColl.uniqueNames.length; j++) {
+          for (j = 0; j &lt; copyColl.uniqueNames.length; j++) {
             copyColl.ensureUniqueIndex(copyColl.uniqueNames[j]);
           }
         }
@@ -1013,7 +1041,7 @@
         if (typeof (coll.DynamicViews) === 'undefined') continue;
 
         // reinflate DynamicViews and attached Resultsets
-        for (var idx = 0; idx < coll.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; coll.DynamicViews.length; idx++) {
           var colldv = coll.DynamicViews[idx];
 
           var dv = copyColl.addDynamicView(colldv.name, colldv.options);
@@ -1268,7 +1296,7 @@
             }
           } else {
             // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-            if (typeof (dbString) === "object" && dbString !== null && !(dbString instanceof Error)) {
+            if (typeof (dbString) === "object" &amp;&amp; dbString !== null &amp;&amp; !(dbString instanceof Error)) {
               self.loadJSONObject(dbString, options || {});
               cFun(null); // return null on success
               self.emit('loaded', 'database ' + self.filename + ' loaded');
@@ -1304,7 +1332,7 @@
       // the persistenceAdapter should be present if all is ok, but check to be sure.
       if (this.persistenceAdapter !== null) {
         // check if the adapter is requesting (and supports) a 'reference' mode export
-        if (this.persistenceAdapter.mode === "reference" && typeof this.persistenceAdapter.exportDatabase === "function") {
+        if (this.persistenceAdapter.mode === "reference" &amp;&amp; typeof this.persistenceAdapter.exportDatabase === "function") {
           // filename may seem redundant but loadDatabase will need to expect this same filename
           this.persistenceAdapter.exportDatabase(this.filename, this, function exportDatabaseCallback(err) {
             self.autosaveClearFlags();
@@ -1359,7 +1387,7 @@
      * @returns {boolean} - true if database has changed since last autosave, false if not.
      */
     Loki.prototype.autosaveDirty = function () {
-      for (var idx = 0; idx < this.collections.length; idx++) {
+      for (var idx = 0; idx &lt; this.collections.length; idx++) {
         if (this.collections[idx].dirty) {
           return true;
         }
@@ -1374,7 +1402,7 @@
      *
      */
     Loki.prototype.autosaveClearFlags = function () {
-      for (var idx = 0; idx < this.collections.length; idx++) {
+      for (var idx = 0; idx &lt; this.collections.length; idx++) {
         this.collections[idx].dirty = false;
       }
     };
@@ -1391,7 +1419,7 @@
       var delay = 5000,
         self = this;
 
-      if (typeof (this.autosaveInterval) !== 'undefined' && this.autosaveInterval !== null) {
+      if (typeof (this.autosaveInterval) !== 'undefined' &amp;&amp; this.autosaveInterval !== null) {
         delay = this.autosaveInterval;
       }
 
@@ -1411,7 +1439,7 @@
      *
      */
     Loki.prototype.autosaveDisable = function () {
-      if (typeof (this.autosaveHandle) !== 'undefined' && this.autosaveHandle !== null) {
+      if (typeof (this.autosaveHandle) !== 'undefined' &amp;&amp; this.autosaveHandle !== null) {
         clearInterval(this.autosaveHandle);
         this.autosaveHandle = null;
       }
@@ -1446,15 +1474,15 @@
       this.collection = collection;
 
       // if chain() instantiates with null queryObj and queryFunc, so we will keep flag for later
-      this.searchIsChained = (!options.queryObj && !options.queryFunc);
+      this.searchIsChained = (!options.queryObj &amp;&amp; !options.queryFunc);
       this.filteredrows = [];
       this.filterInitialized = false;
 
       // if user supplied initial queryObj or queryFunc, apply it
-      if (typeof (options.queryObj) !== "undefined" && options.queryObj !== null) {
+      if (typeof (options.queryObj) !== "undefined" &amp;&amp; options.queryObj !== null) {
         return this.find(options.queryObj, options.firstOnly);
       }
-      if (typeof (options.queryFunc) !== "undefined" && options.queryFunc !== null) {
+      if (typeof (options.queryFunc) !== "undefined" &amp;&amp; options.queryFunc !== null) {
         return this.where(options.queryFunc);
       }
 
@@ -1495,7 +1523,7 @@
      */
     Resultset.prototype.limit = function (qty) {
       // if this is chained resultset with no filters applied, we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -1514,7 +1542,7 @@
      */
     Resultset.prototype.offset = function (pos) {
       // if this is chained resultset with no filters applied, we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -1576,7 +1604,7 @@
         transform = Utils.resolveTransformParams(transform, parameters);
       }
 
-      for (idx = 0; idx < transform.length; idx++) {
+      for (idx = 0; idx &lt; transform.length; idx++) {
         step = transform[idx];
 
         switch (step.type) {
@@ -1632,7 +1660,7 @@
      *    rslt.sort(function(obj1, obj2) {
      *      if (obj1.name === obj2.name) return 0;
      *      if (obj1.name > obj2.name) return 1;
-     *      if (obj1.name < obj2.name) return -1;
+     *      if (obj1.name &lt; obj2.name) return -1;
      *    });
      *
      * @param {function} comparefun - A javascript compare function used for sorting.
@@ -1641,7 +1669,7 @@
      */
     Resultset.prototype.sort = function (comparefun) {
       // if this is chained resultset with no filters applied, just we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -1668,7 +1696,7 @@
      */
     Resultset.prototype.simplesort = function (propname, isdesc) {
       // if this is chained resultset with no filters applied, just we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -1715,7 +1743,7 @@
       }
 
       // unify the structure of 'properties' to avoid checking it repeatedly while sorting
-      for (var i = 0, len = properties.length; i < len; i += 1) {
+      for (var i = 0, len = properties.length; i &lt; len; i += 1) {
         prop = properties[i];
         if (!Array.isArray(prop)) {
           properties[i] = [prop, false];
@@ -1723,7 +1751,7 @@
       }
 
       // if this is chained resultset with no filters applied, just we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -1805,7 +1833,7 @@
       }
 
       // hone in on start position of value
-      while (min < max) {
+      while (min &lt; max) {
         mid = (min + max) >> 1;
 
         if (ltHelper(rcd[index[mid]][prop], val, false)) {
@@ -1821,7 +1849,7 @@
       max = index.length - 1;
 
       // hone in on end position of value
-      while (min < max) {
+      while (min &lt; max) {
         mid = (min + max) >> 1;
 
         if (ltHelper(val, rcd[index[mid]][prop], false)) {
@@ -1847,10 +1875,10 @@
 
         return [lbound, ubound];
       case '$dteq':
-        if (lval > val || lval < val) {
+        if (lval > val || lval &lt; val) {
           return [0, -1];
         }
-        if (uval > val || uval < val) {
+        if (uval > val || uval &lt; val) {
           ubound--;
         }
 
@@ -1872,7 +1900,7 @@
         return [lbound, rcd.length - 1];
 
       case '$lt':
-        if (lbound === 0 && ltHelper(lval, val, false)) {
+        if (lbound === 0 &amp;&amp; ltHelper(lval, val, false)) {
           return [0, 0];
         }
         return [0, lbound - 1];
@@ -1882,7 +1910,7 @@
           ubound--;
         }
 
-        if (ubound === 0 && ltHelper(uval, val, false)) {
+        if (ubound === 0 &amp;&amp; ltHelper(uval, val, false)) {
           return [0, 0];
         }
         return [0, ubound];
@@ -1909,7 +1937,7 @@
 
       // If filter is already initialized, then we query against only those items already in filter.
       // This means no index utilization for fields, so hopefully its filtered to a smallish filteredrows.
-      for (var ei = 0, elen = expressionArray.length; ei < elen; ei++) {
+      for (var ei = 0, elen = expressionArray.length; ei &lt; elen; ei++) {
         // we need to branch existing query to run each filter separately and combine results
         fr = this.branch().find(expressionArray[ei]).filteredrows;
         frlen = fr.length;
@@ -1919,7 +1947,7 @@
         }
 
         // add any document 'hits'
-        for (fri = 0; fri < frlen; fri++) {
+        for (fri = 0; fri &lt; frlen; fri++) {
           idx = fr[fri];
           if (idxset[idx] === undefined) {
             idxset[idx] = true;
@@ -1947,7 +1975,7 @@
     Resultset.prototype.findAnd = function (expressionArray) {
       // we have already implementing method chaining in this (our Resultset class)
       // so lets just progressively apply user supplied and filters
-      for (var i = 0, len = expressionArray.length; i < len; i++) {
+      for (var i = 0, len = expressionArray.length; i &lt; len; i++) {
         if (this.count() === 0) {
           return this;
         }
@@ -2017,7 +2045,7 @@
           this[property](queryObjectOp);
 
           // for chained find with firstonly,
-          if (firstOnly && this.filteredrows.length > 1) {
+          if (firstOnly &amp;&amp; this.filteredrows.length > 1) {
             this.filteredrows = this.filteredrows.slice(0, 1);
           }
 
@@ -2070,10 +2098,10 @@
       // if an index exists for the property being queried against, use it
       // for now only enabling for non-chained query (who's set of docs matches index)
       // or chained queries where it is the first filter applied and prop is indexed
-      var doIndexCheck = !usingDotNotation &&
+      var doIndexCheck = !usingDotNotation &amp;&amp;
           (!this.searchIsChained || !this.filterInitialized);
 
-      if (doIndexCheck && this.collection.binaryIndices[property] &&
+      if (doIndexCheck &amp;&amp; this.collection.binaryIndices[property] &amp;&amp;
           indexedOpsList.indexOf(operator) !== -1) {
         // this is where our lazy index rebuilding will take place
         // basically we will leave all indexes dirty until we need them
@@ -2153,7 +2181,7 @@
             return [];
           }
 
-          for (i = seg[0]; i <= seg[1]; i++) {
+          for (i = seg[0]; i &lt;= seg[1]; i++) {
             result.push(t[index.values[i]]);
           }
         }
@@ -2214,7 +2242,7 @@
           // search by index
           var segm = this.calculateRange(operator, property, value);
 
-          for (i = segm[0]; i <= segm[1]; i++) {
+          for (i = segm[0]; i &lt;= segm[1]; i++) {
             result.push(index.values[i]);
           }
         }
@@ -2301,7 +2329,7 @@
      * @memberof Resultset
      */
     Resultset.prototype.count = function () {
-      if (this.searchIsChained && this.filterInitialized) {
+      if (this.searchIsChained &amp;&amp; this.filterInitialized) {
         return this.filteredrows.length;
       }
       return this.collection.count();
@@ -2329,14 +2357,14 @@
       options = options || {};
 
       // if this is chained resultset with no filters applied, just return collection.data
-      if (this.searchIsChained && !this.filterInitialized) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized) {
         if (this.filteredrows.length === 0) {
           // determine whether we need to clone objects or not
           if (this.collection.cloneObjects || options.forceClones) {
             len = data.length;
             method = options.forceCloneMethod || this.collection.cloneMethod;
 
-            for (i = 0; i < len; i++) {
+            for (i = 0; i &lt; len; i++) {
               result.push(clone(data[i], method));
             }
             return result;
@@ -2356,12 +2384,12 @@
 
       if (this.collection.cloneObjects || options.forceClones) {
         method = options.forceCloneMethod || this.collection.cloneMethod;
-        for (i = 0; i < len; i++) {
+        for (i = 0; i &lt; len; i++) {
           result.push(clone(data[fr[i]], method));
         }
       }
       else {
-        for (i = 0; i < len; i++) {
+        for (i = 0; i &lt; len; i++) {
           result.push(data[fr[i]]);
         }
       }
@@ -2382,14 +2410,14 @@
       }
 
       // if this is chained resultset with no filters applied, we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
       var len = this.filteredrows.length,
         rcd = this.collection.data;
 
-      for (var idx = 0; idx < len; idx++) {
+      for (var idx = 0; idx &lt; len; idx++) {
         // pass in each document object currently in resultset to user supplied updateFunction
         updateFunction(rcd[this.filteredrows[idx]]);
 
@@ -2409,7 +2437,7 @@
     Resultset.prototype.remove = function () {
 
       // if this is chained resultset with no filters applied, we need to populate filteredrows first
-      if (this.searchIsChained && !this.filterInitialized && this.filteredrows.length === 0) {
+      if (this.searchIsChained &amp;&amp; !this.filterInitialized &amp;&amp; this.filteredrows.length === 0) {
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
@@ -2474,7 +2502,7 @@
 
       //construct a lookup table
 
-      for (var i = 0; i < rightDataLength; i++) {
+      for (var i = 0; i &lt; rightDataLength; i++) {
         key = rightKeyisFunction ? rightJoinKey(rightData[i]) : rightData[i][rightJoinKey];
         joinMap[key] = rightData[i];
       }
@@ -2489,7 +2517,7 @@
       }
 
       //Run map function over each object in the resultset
-      for (var j = 0; j < leftDataLength; j++) {
+      for (var j = 0; j &lt; leftDataLength; j++) {
         key = leftKeyisFunction ? leftJoinKey(leftData[j]) : leftData[j][leftJoinKey];
         result.push(mapFun(leftData[j], joinMap[key] || {}));
       }
@@ -2629,7 +2657,7 @@
 
       // now re-apply 'find' filterPipeline ops
       fpl = ofp.length;
-      for (idx = 0; idx < fpl; idx++) {
+      for (idx = 0; idx &lt; fpl; idx++) {
         this.applyFind(ofp[idx].val);
       }
 
@@ -2712,7 +2740,7 @@
      * dv.applySort(function(obj1, obj2) {
      *   if (obj1.name === obj2.name) return 0;
      *   if (obj1.name > obj2.name) return 1;
-     *   if (obj1.name < obj2.name) return -1;
+     *   if (obj1.name &lt; obj2.name) return -1;
      * });
      *
      * @param {function} comparefun - a javascript compare function used for sorting
@@ -2823,7 +2851,7 @@
      */
     DynamicView.prototype._indexOfFilterWithId = function (uid) {
       if (typeof uid === 'string' || typeof uid === 'number') {
-        for (var idx = 0, len = this.filterPipeline.length; idx < len; idx += 1) {
+        for (var idx = 0, len = this.filterPipeline.length; idx &lt; len; idx += 1) {
           if (uid === this.filterPipeline[idx].uid) {
             return idx;
           }
@@ -2860,7 +2888,7 @@
       var filters = this.filterPipeline;
       this.filterPipeline = [];
 
-      for (var idx = 0, len = filters.length; idx < len; idx += 1) {
+      for (var idx = 0, len = filters.length; idx &lt; len; idx += 1) {
         this._addFilter(filters[idx]);
       }
 
@@ -2948,7 +2976,7 @@
      */
     DynamicView.prototype.removeFilter = function (uid) {
       var idx = this._indexOfFilterWithId(uid);
-      if (idx < 0) {
+      if (idx &lt; 0) {
         throw new Error("Dynamic view does not contain a filter with ID: " + uid);
       }
 
@@ -3034,7 +3062,7 @@
      */
     DynamicView.prototype.performSortPhase = function (options) {
       // async call to this may have been pre-empted by synchronous call to data before async could fire
-      if (!this.sortDirty && !this.resultsdirty) {
+      if (!this.sortDirty &amp;&amp; !this.resultsdirty) {
         return;
       }
 
@@ -3079,7 +3107,7 @@
       evalResultset.filteredrows = [objIndex];
       evalResultset.filterInitialized = true;
       var filter;
-      for (var idx = 0, len = this.filterPipeline.length; idx < len; idx++) {
+      for (var idx = 0, len = this.filterPipeline.length; idx &lt; len; idx++) {
         filter = this.filterPipeline[idx];
         evalResultset[filter.type](filter.val);
       }
@@ -3088,10 +3116,10 @@
       var newPos = (evalResultset.filteredrows.length === 0) ? -1 : 0;
 
       // wasn't in old, shouldn't be now... do nothing
-      if (oldPos === -1 && newPos === -1) return;
+      if (oldPos === -1 &amp;&amp; newPos === -1) return;
 
       // wasn't in resultset, should be now... add
-      if (oldPos === -1 && newPos !== -1) {
+      if (oldPos === -1 &amp;&amp; newPos !== -1) {
         ofr.push(objIndex);
 
         if (this.options.persistent) {
@@ -3109,8 +3137,8 @@
       }
 
       // was in resultset, shouldn't be now... delete
-      if (oldPos !== -1 && newPos === -1) {
-        if (oldPos < oldlen - 1) {
+      if (oldPos !== -1 &amp;&amp; newPos === -1) {
+        if (oldPos &lt; oldlen - 1) {
           // http://dvolvr.davidwaterston.com/2013/06/09/restating-the-obvious-the-fastest-way-to-truncate-an-array-in-javascript/comment-page-1/
           ofr[oldPos] = ofr[oldlen - 1];
           ofr.length = oldlen - 1;
@@ -3138,7 +3166,7 @@
       }
 
       // was in resultset, should still be now... (update persistent only?)
-      if (oldPos !== -1 && newPos !== -1) {
+      if (oldPos !== -1 &amp;&amp; newPos !== -1) {
         if (this.options.persistent) {
           // in case document changed, replace persistent view data with the latest collection.data document
           this.resultdata[oldPos] = this.collection.data[objIndex];
@@ -3166,7 +3194,7 @@
 
       if (oldPos !== -1) {
         // if not last row in resultdata, swap last to hole and truncate last row
-        if (oldPos < oldlen - 1) {
+        if (oldPos &lt; oldlen - 1) {
           ofr[oldPos] = ofr[oldlen - 1];
           ofr.length = oldlen - 1;
 
@@ -3196,7 +3224,7 @@
       // if they remove a document (whether in our view or not),
       // we need to adjust array positions -1 for all document array references after that position
       oldlen = ofr.length;
-      for (idx = 0; idx < oldlen; idx++) {
+      for (idx = 0; idx &lt; oldlen; idx++) {
         if (ofr[idx] > objIndex) {
           ofr[idx]--;
         }
@@ -3342,7 +3370,7 @@
       this.ensureId();
       var indices = [];
       // initialize optional user-supplied indices array ['age', 'lname', 'zip']
-      if (options && options.indices) {
+      if (options &amp;&amp; options.indices) {
         if (Object.prototype.toString.call(options.indices) === '[object Array]') {
           indices = options.indices;
         } else if (typeof options.indices === 'string') {
@@ -3352,7 +3380,7 @@
         }
       }
 
-      for (var idx = 0; idx < indices.length; idx++) {
+      for (var idx = 0; idx &lt; indices.length; idx++) {
         this.ensureIndex(indices[idx]);
       }
 
@@ -3575,14 +3603,14 @@
         var toRemove = collection.chain().where(function daemonFilter(member) {
           var timestamp = member.meta.updated || member.meta.created;
           var diff = now - timestamp;
-          return age < diff;
+          return age &lt; diff;
         });
         toRemove.remove();
       };
     };
 
     Collection.prototype.setTTL = function (age, interval) {
-      if (age < 0) {
+      if (age &lt; 0) {
         clearInterval(this.ttl.daemon);
       }
       else {
@@ -3602,7 +3630,7 @@
     Collection.prototype.prepareFullDocIndex = function () {
       var len = this.data.length;
       var indexes = new Array(len);
-      for (var i = 0; i < len; i += 1) {
+      for (var i = 0; i &lt; len; i += 1) {
         indexes[i] = i;
       }
       return indexes;
@@ -3624,7 +3652,7 @@
         throw new Error('Attempting to set index without an associated property');
       }
 
-      if (this.binaryIndices[property] && !force) {
+      if (this.binaryIndices[property] &amp;&amp; !force) {
         if (!this.binaryIndices[property].dirty) return;
       }
 
@@ -3658,7 +3686,7 @@
       var idx, idxvals = this.binaryIndices[property].values;
       var result = "";
 
-      for(idx=0; idx<idxvals.length; idx++) {
+      for(idx=0; idx&lt;idxvals.length; idx++) {
         result += " [" + idx + "] " + this.data[idxvals[idx]][property];
       }
 
@@ -3730,7 +3758,7 @@
         i = 0;
 
       this.idIndex = [];
-      for (i; i < len; i += 1) {
+      for (i; i &lt; len; i += 1) {
         this.idIndex.push(this.data[i].$loki);
       }
     };
@@ -3768,7 +3796,7 @@
      * @memberof Collection
      **/
     Collection.prototype.removeDynamicView = function (name) {
-      for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+      for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
         if (this.DynamicViews[idx].name === name) {
           this.DynamicViews.splice(idx, 1);
         }
@@ -3782,7 +3810,7 @@
      * @memberof Collection
      **/
     Collection.prototype.getDynamicView = function (name) {
-      for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+      for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
         if (this.DynamicViews[idx].name === name) {
           return this.DynamicViews[idx];
         }
@@ -3803,7 +3831,7 @@
         i = 0,
         obj;
       try {
-        for (i; i < results.length; i++) {
+        for (i; i &lt; results.length; i++) {
           obj = updateFunction(results[i]);
           this.update(obj);
         }
@@ -3828,7 +3856,7 @@
       // holder to the clone of the object inserted if collections is set to clone objects
       var obj;
       var results = [];
-      for (var i = 0, len = doc.length; i < len; i++) {
+      for (var i = 0, len = doc.length; i &lt; len; i++) {
         obj = this.insertOne(doc[i]);
         if (!obj) {
           return undefined;
@@ -3904,7 +3932,7 @@
       if (Array.isArray(doc)) {
         var k = 0,
           len = doc.length;
-        for (k; k < len; k += 1) {
+        for (k; k &lt; len; k += 1) {
           this.update(doc[k]);
         }
         return;
@@ -3944,7 +3972,7 @@
 
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
-        for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
           this.DynamicViews[idx].evaluateDocument(position, false);
         }
 
@@ -4010,7 +4038,7 @@
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
         var addedPos = this.data.length - 1;
         var dvlen = this.DynamicViews.length;
-        for (var i = 0; i < dvlen; i++) {
+        for (var i = 0; i &lt; dvlen; i++) {
           this.DynamicViews[i].evaluateDocument(addedPos, true);
         }
 
@@ -4057,7 +4085,7 @@
       if (Array.isArray(doc)) {
         var k = 0,
           len = doc.length;
-        for (k; k < len; k += 1) {
+        for (k; k &lt; len; k += 1) {
           this.remove(doc[k]);
         }
         return;
@@ -4076,13 +4104,13 @@
           position = arr[1];
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
-          if (doc[key] !== null && typeof doc[key] !== 'undefined') {
+          if (doc[key] !== null &amp;&amp; typeof doc[key] !== 'undefined') {
             self.constraints.unique[key].remove(doc[key]);
           }
         });
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to remove
-        for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
           this.DynamicViews[idx].removeDocument(position);
         }
 
@@ -4130,17 +4158,17 @@
         throw new TypeError('Passed id is not an integer');
       }
 
-      while (data[min] < data[max]) {
+      while (data[min] &lt; data[max]) {
         mid = (min + max) >> 1;
 
-        if (data[mid] < id) {
+        if (data[mid] &lt; id) {
           min = mid + 1;
         } else {
           max = mid;
         }
       }
 
-      if (max === min && data[min] === id) {
+      if (max === min &amp;&amp; data[min] === id) {
         if (retpos) {
           return [this.data[min], min];
         }
@@ -4187,7 +4215,7 @@
         queryObj: query,
         firstOnly: true
       });
-      if (Array.isArray(result) && result.length === 0) {
+      if (Array.isArray(result) &amp;&amp; result.length === 0) {
         return null;
       } else {
         if (!this.cloneObjects) {
@@ -4270,7 +4298,7 @@
         this.cachedBinaryIndex = this.binaryIndices;
 
         // propagate startTransaction to dynamic views
-        for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
           this.DynamicViews[idx].startTransaction();
         }
       }
@@ -4284,7 +4312,7 @@
         this.cachedBinaryIndex = null;
 
         // propagate commit to dynamic views
-        for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
           this.DynamicViews[idx].commit();
         }
       }
@@ -4293,14 +4321,14 @@
     /** roll back the transation */
     Collection.prototype.rollback = function () {
       if (this.transactional) {
-        if (this.cachedData !== null && this.cachedIndex !== null) {
+        if (this.cachedData !== null &amp;&amp; this.cachedIndex !== null) {
           this.data = this.cachedData;
           this.idIndex = this.cachedIndex;
           this.binaryIndices = this.cachedBinaryIndex;
         }
 
         // propagate rollback to dynamic views
-        for (var idx = 0; idx < this.DynamicViews.length; idx++) {
+        for (var idx = 0; idx &lt; this.DynamicViews.length; idx++) {
           this.DynamicViews[idx].rollback();
         }
       }
@@ -4440,7 +4468,7 @@
         len = this.data.length,
         isDotNotation = isDeepProperty(field),
         result = [];
-      for (i; i < len; i += 1) {
+      for (i; i &lt; len; i += 1) {
         result.push(deepProperty(this.data[i], field, isDotNotation));
       }
       return result;
@@ -4473,9 +4501,9 @@
         },
         max;
 
-      for (i; i < len; i += 1) {
+      for (i; i &lt; len; i += 1) {
         if (max !== undefined) {
-          if (max < deepProperty(this.data[i], field, deep)) {
+          if (max &lt; deepProperty(this.data[i], field, deep)) {
             max = deepProperty(this.data[i], field, deep);
             result.index = this.data[i].$loki;
           }
@@ -4501,7 +4529,7 @@
         },
         min;
 
-      for (i; i < len; i += 1) {
+      for (i; i &lt; len; i += 1) {
         if (min !== undefined) {
           if (min > deepProperty(this.data[i], field, deep)) {
             min = deepProperty(this.data[i], field, deep);
@@ -4563,7 +4591,7 @@
         prop, mode;
       for (prop in dict) {
         if (max) {
-          if (max < dict[prop]) {
+          if (max &lt; dict[prop]) {
             mode = prop;
           }
         } else {
@@ -4656,7 +4684,7 @@
         hi = array.length,
         compared,
         mid;
-      while (lo < hi) {
+      while (lo &lt; hi) {
         mid = (lo + hi) >> 1;
         compared = fun.apply(null, [item, array[mid]]);
         if (compared === 0) {
@@ -4664,7 +4692,7 @@
             found: true,
             index: mid
           };
-        } else if (compared < 0) {
+        } else if (compared &lt; 0) {
           hi = mid;
         } else {
           lo = mid + 1;
@@ -4688,7 +4716,7 @@
       keys: [],
       values: [],
       sort: function (a, b) {
-        return (a < b) ? -1 : ((a > b) ? 1 : 0);
+        return (a &lt; b) ? -1 : ((a > b) ? 1 : 0);
       },
       setSort: function (fun) {
         this.bs = new BSonSort(fun);
@@ -4719,7 +4747,7 @@
     UniqueIndex.prototype.lokiMap = {};
     UniqueIndex.prototype.set = function (obj) {
       var fieldValue = obj[this.field];
-      if (fieldValue !== null && typeof (fieldValue) !== 'undefined') {
+      if (fieldValue !== null &amp;&amp; typeof (fieldValue) !== 'undefined') {
         if (this.keyMap[fieldValue]) {
           throw new Error('Duplicate key for property ' + this.field + ': ' + fieldValue);
         } else {
@@ -4747,7 +4775,7 @@
     };
     UniqueIndex.prototype.remove = function (key) {
       var obj = this.keyMap[key];
-      if (obj !== null && typeof obj !== 'undefined') {
+      if (obj !== null &amp;&amp; typeof obj !== 'undefined') {
         this.keyMap[key] = undefined;
         this.lokiMap[obj.$loki] = undefined;
       } else {
@@ -4782,7 +4810,7 @@
             idxSet.splice(i, 1);
           }
         }
-        if (idxSet.length < 1) {
+        if (idxSet.length &lt; 1) {
           this.index[key] = undefined;
         }
       },
@@ -4807,7 +4835,7 @@
       values: [],
       // set the default sort
       sort: function (a, b) {
-        return (a < b) ? -1 : ((a > b) ? 1 : 0);
+        return (a &lt; b) ? -1 : ((a > b) ? 1 : 0);
       },
       bs: function () {
         return new BSonSort(this.sort);
@@ -4835,7 +4863,7 @@
           return [];
         }
       },
-      // get all values which have a key < the given key
+      // get all values which have a key &lt; the given key
       getLt: function (key) {
         var bsr = binarySearch(this.keys, key, this.sort);
         var pos = bsr.index;
@@ -4853,7 +4881,7 @@
       // get all vals from start to end
       getAll: function (key, start, end) {
         var results = [];
-        for (var i = start; i < end; i++) {
+        for (var i = start; i &lt; end; i++) {
           results = results.concat(this.values[i]);
         }
         return results;
@@ -4869,7 +4897,7 @@
         for (var i in idxSet) {
           if (idxSet[i] == value) idxSet.splice(i, 1);
         }
-        if (idxSet.length < 1) {
+        if (idxSet.length &lt; 1) {
           this.keys.splice(pos, 1);
           this.values.splice(pos, 1);
         }
@@ -4885,11 +4913,30 @@
     Loki.LokiOps = LokiOps;
     Loki.Collection = Collection;
     Loki.KeyValueStore = KeyValueStore;
-    Loki.persistenceAdapters = {
-      fs: LokiFsAdapter,
-      localStorage: LokiLocalStorageAdapter
-    };
     return Loki;
   }());
 
 }));
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Collection.html">Collection</a></li><li><a href="DynamicView.html">DynamicView</a></li><li><a href="Loki.html">Loki</a></li><li><a href="LokiEventEmitter.html">LokiEventEmitter</a></li><li><a href="LokiFsAdapter.html">LokiFsAdapter</a></li><li><a href="LokiIndexedAdapter.html">LokiIndexedAdapter</a></li><li><a href="LokiLocalStorageAdapter.html">LokiLocalStorageAdapter</a></li><li><a href="Resultset.html">Resultset</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Autoupdating Collections.html">Autoupdating Collections</a></li><li><a href="tutorial-Changes API.html">Changes API</a></li><li><a href="tutorial-Collection Transforms.html">Collection Transforms</a></li><li><a href="tutorial-Indexing and Query performance.html">Indexing and Query performance</a></li><li><a href="tutorial-Loki Angular.html">Loki Angular</a></li><li><a href="tutorial-Persistence Adapters.html">Persistence Adapters</a></li><li><a href="tutorial-Query Examples.html">Query Examples</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 11 2016 21:06:48 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
