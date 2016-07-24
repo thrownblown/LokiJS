@@ -95,7 +95,7 @@
         }
 
         if (prop2 === undefined || prop2 === null || prop1 === true || prop2 === false) {
-            return equal;
+          return equal;
         }
         if (prop1 === undefined || prop1 === null || prop1 === false || prop2 === true) {
           return true;
@@ -222,44 +222,36 @@
 
     /**
      * dotSubScan - helper function used for dot notation queries.
+     *
+     * @param {object} root - object to traverse
+     * @param {array} paths - array of properties to drill into
+     * @param {function} fun - evaluation function to test with
+     * @param {any} value - comparative value to also pass to (compare) fun
+     * @param {number} poffset - index of the item in 'paths' to start the sub-scan from
      */
-    function dotSubScan(root, propPath, fun, value) {
-      var pathSegment = null;
-      var subIndex = 0, subLen = 0, subPath = null;
-
-      for (var segmIndex = 0, segmCount = propPath.length; segmIndex < segmCount; segmIndex++) {
-        pathSegment = propPath[segmIndex];
-
-        // if the dot notation is invalid for the current document, then ignore this document
-        if (root === undefined || root === null || !hasOwnProperty.call(root, pathSegment)) {
-          return false;
-        }
-
-        if (Array.isArray(root)) {
-          subLen = root.length;
-          // iterate all sub-array items to see if any yield hits
-          if ((segmIndex + 1) < segmCount) {
-            subPath = propPath.slice(segmIndex + 1);
-            for (subIndex = 0; subIndex < subLen; subIndex++) {
-              if (dotSubScan(root[subIndex], subPath, fun, value)) {
-                return true;
-              }
-            }
-          } else {
-            for (subIndex = 0; subIndex < subLen; subIndex++) {
-              if (fun(root[subIndex][pathSegment], value)) {
-                return true;
-              }
-            }
-          }
-          return false;
-        }
-
-        root = root[pathSegment];
+    function dotSubScan(root, paths, fun, value, poffset) {
+      var pathOffset = poffset || 0;
+      var path = paths[pathOffset];
+      if (root === undefined || root === null || !hasOwnProperty.call(root, path)) {
+        return false;
       }
 
-      // made it this far so must be dot notation on non-array property
-      return fun(root, value);
+      var valueFound = false;
+      var element = root[path];
+      if (Array.isArray(element)) {
+        for (var index = 0, len = element.length; index < len; index += 1) {
+          valueFound = dotSubScan(element[index], paths, fun, value, pathOffset + 1);
+          if (valueFound === true) {
+            break;
+          }
+        }
+      } else if (typeof element !== 'object' || element === null || element instanceof Date) {
+        valueFound = fun(element, value);
+      } else {
+        valueFound = dotSubScan(element, paths, fun, value, pathOffset + 1);
+      }
+
+      return valueFound;
     }
 
     function containsCheckFn(a) {
@@ -267,7 +259,7 @@
         return function (b) {
           return a.indexOf(b) !== -1;
         };
-      } else if (typeof a === 'object') {
+      } else if (typeof a === 'object' && a !== null) {
         return function (b) {
           return hasOwnProperty.call(a, b);
         };
@@ -292,15 +284,22 @@
         return a === b;
       },
 
+      // abstract/loose equality
+      $aeq: function (a, b) {
+        return a == b;
+      },
+
       $ne: function (a, b) {
-        if (isNaN(b)) {
-          return !isNaN(a);
+        // ecma 5 safe test for NaN
+        if (b !== b) {
+          // ecma 5 test value is not NaN
+          return (a === a);
         }
 
         return a !== b;
       },
 
-      $dteq: function(a, b) {
+      $dteq: function (a, b) {
         if (ltHelper(a, b, false)) {
           return false;
         }
@@ -433,27 +432,27 @@
     };
 
     // making indexing opt-in... our range function knows how to deal with these ops :
-    var indexedOpsList = ['$eq', '$dteq', '$gt', '$gte', '$lt', '$lte'];
+    var indexedOpsList = ['$eq', '$aeq', '$dteq', '$gt', '$gte', '$lt', '$lte'];
 
     function clone(data, method) {
       var cloneMethod = method || 'parse-stringify',
         cloned;
 
       switch (cloneMethod) {
-        case "parse-stringify":
-          cloned = JSON.parse(JSON.stringify(data));
-          break;
-        case "jquery-extend-deep":
-          cloned = jQuery.extend(true, {}, data);
-          break;
-        case "shallow":
-          cloned = Object.create(data.prototype || null);
-          Object.keys(data).map(function (i) {
-            cloned[i] = data[i];
-          });
-          break;
-        default:
-          break;
+      case "parse-stringify":
+        cloned = JSON.parse(JSON.stringify(data));
+        break;
+      case "jquery-extend-deep":
+        cloned = jQuery.extend(true, {}, data);
+        break;
+      case "shallow":
+        cloned = Object.create(data.prototype || null);
+        Object.keys(data).map(function (i) {
+          cloned[i] = data[i];
+        });
+        break;
+      default:
+        break;
       }
 
       //if (cloneMethod === 'parse-stringify') {
@@ -470,9 +469,9 @@
         return clone(objarray, method);
       }
 
-      i = objarray.length-1;
+      i = objarray.length - 1;
 
-      for(;i<=0;i--) {
+      for (; i <= 0; i--) {
         result.push(clone(objarray[i], method));
       }
 
@@ -532,7 +531,7 @@
      * with the option of passing optional parameters which are going to be processed by the callback
      * provided signatures match (i.e. if passing emit(event, arg0, arg1) the listener should take two parameters)
      * @param {string} eventName - the name of the event
-     * @param {object} data - optional object passed with the event
+     * @param {object=} data - optional object passed with the event
      * @memberof LokiEventEmitter
      */
     LokiEventEmitter.prototype.emit = function (eventName, data) {
@@ -571,7 +570,7 @@
      * @constructor Loki
      * @implements LokiEventEmitter
      * @param {string} filename - name of the file to be saved to
-     * @param {object} options - (Optional) config options object
+     * @param {object=} options - (Optional) config options object
      * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
      * @param {boolean} options.verbose - enable console output (default is 'false')
      * @param {boolean} options.autosave - enables autosave
@@ -622,6 +621,15 @@
       };
 
       var getENV = function () {
+        // if (typeof global !== 'undefined' && (global.android || global.NSObject)) {
+        //   //If no adapter is set use the default nativescript adapter
+        //   if (!options.adapter) {
+        //     var LokiNativescriptAdapter = require('./loki-nativescript-adapter');
+        //     options.adapter=new LokiNativescriptAdapter();
+        //   }
+        //   return 'NATIVESCRIPT'; //nativescript
+        // }
+
         if (typeof window === 'undefined') {
           return 'NODEJS';
         }
@@ -784,7 +792,7 @@
       var collection = new Collection('anonym', options);
       collection.insert(docs);
 
-      if(this.verbose)
+      if (this.verbose)
         collection.console = console;
 
       return collection;
@@ -793,7 +801,7 @@
     /**
      * Adds a collection to the database.
      * @param {string} name - name of collection to add
-     * @param {object} options - (optional) options to configure collection with.
+     * @param {object=} options - (optional) options to configure collection with.
      * @param {array} options.unique - array of property names to define unique constraints for
      * @param {array} options.exact - array of property names to define exact constraints for
      * @param {array} options.indices - array property names to define binary indexes for
@@ -810,7 +818,7 @@
       var collection = new Collection(name, options);
       this.collections.push(collection);
 
-      if(this.verbose)
+      if (this.verbose)
         collection.console = console;
 
       return collection;
@@ -874,7 +882,7 @@
           var curcol = this.collections[i];
           for (var prop in curcol) {
             if (curcol.hasOwnProperty(prop) && tmpcol.hasOwnProperty(prop)) {
-                curcol[prop] = tmpcol[prop];
+              curcol[prop] = tmpcol[prop];
             }
           }
           this.collections.splice(i, 1);
@@ -1040,7 +1048,7 @@
      * Emits the close event. In autosave scenarios, if the database is dirty, this will save and disable timer.
      * Does not actually destroy the db.
      *
-     * @param {function} callback - (Optional) if supplied will be registered with close event before emitting.
+     * @param {function=} callback - (Optional) if supplied will be registered with close event before emitting.
      * @memberof Loki
      */
     Loki.prototype.close = function (callback) {
@@ -1074,7 +1082,7 @@
      * collection and creates a single array for the entire database. If an array of names
      * of collections is passed then only the included collections will be tracked.
      *
-     * @param {array} optional array of collection names. No arg means all collections are processed.
+     * @param {array=} optional array of collection names. No arg means all collections are processed.
      * @returns {array} array of changes
      * @see private method createChange() in Collection
      * @memberof Loki
@@ -1239,7 +1247,7 @@
      *    persistence method to use, or environment detection (if configuration was not provided).
      *
      * @param {object} options - not currently used (remove or allow overrides?)
-     * @param {function} callback - (Optional) user supplied async callback / error handler
+     * @param {function=} callback - (Optional) user supplied async callback / error handler
      * @memberof Loki
      */
     Loki.prototype.loadDatabase = function (options, callback) {
@@ -1289,7 +1297,7 @@
      *    This method utilizes loki configuration options (if provided) to determine which
      *    persistence method to use, or environment detection (if configuration was not provided).
      *
-     * @param {function} callback - (Optional) user supplied async callback / error handler
+     * @param {function=} callback - (Optional) user supplied async callback / error handler
      * @memberof Loki
      */
     Loki.prototype.saveDatabase = function (callback) {
@@ -1333,15 +1341,15 @@
      *    persistence method to use, or environment detection (if configuration was not provided).
      *
      * @param {object} options - not currently used (remove or allow overrides?)
-     * @param {function} callback - (Optional) user supplied async callback / error handler
+     * @param {function=} callback - (Optional) user supplied async callback / error handler
      * @memberof Loki
      */
     Loki.prototype.deleteDatabase = function (options, callback) {
       var cFun = callback || function (err, data) {
-          if (err) {
-            throw err;
-          }
-        };
+        if (err) {
+          throw err;
+        }
+      };
 
       // the persistenceAdapter should be present if all is ok, but check to be sure.
       if (this.persistenceAdapter !== null) {
@@ -1383,7 +1391,7 @@
      * autosaveEnable - begin a javascript interval to periodically save the database.
      *
      * @param {object} options - not currently used (remove or allow overrides?)
-     * @param {function} callback - (Optional) user supplied async callback
+     * @param {function=} callback - (Optional) user supplied async callback
      */
     Loki.prototype.autosaveEnable = function (options, callback) {
       this.autosave = true;
@@ -1430,7 +1438,7 @@
      *
      * @constructor Resultset
      * @param {Collection} collection - The collection which this Resultset will query against.
-     * @param {Object} options - Object containing one or more options.
+     * @param {Object=} options - Object containing one or more options.
      * @param {string} options.queryObj - Optional mongo-style query object to initialize resultset with.
      * @param {function} options.queryFunc - Optional javascript filter function to initialize resultset with.
      * @param {bool} options.firstOnly - Optional boolean used by collection.findOne().
@@ -1550,8 +1558,8 @@
     /**
      * transform() - executes a named collection transform or raw array of transform steps against the resultset.
      *
-     * @param transform {string|array} - name of collection transform or raw transform array
-     * @param parameters {object} - (Optional) object property hash of parameters, if the transform requires them.
+     * @param transform {(string|array)} - name of collection transform or raw transform array
+     * @param parameters {object=} - (Optional) object property hash of parameters, if the transform requires them.
      * @returns {Resultset} either (this) resultset or a clone of of this resultset (depending on steps)
      * @memberof Resultset
      */
@@ -1569,7 +1577,7 @@
 
       // either they passed in raw transform array or we looked it up, so process
       if (typeof transform !== 'object' || !Array.isArray(transform)) {
-          throw new Error("Invalid transform");
+        throw new Error("Invalid transform");
       }
 
       if (typeof parameters !== 'undefined') {
@@ -1662,7 +1670,7 @@
      *    Sorting based on the same lt/gt helper functions used for binary indices.
      *
      * @param {string} propname - name of property to sort by.
-     * @param {bool} isdesc - (Optional) If true, the property will be sorted in descending order
+     * @param {bool=} isdesc - (Optional) If true, the property will be sorted in descending order
      * @returns {Resultset} Reference to this resultset, sorted, for future chain operations.
      * @memberof Resultset
      */
@@ -1767,6 +1775,7 @@
       // if value falls outside of our range return [0, -1] to designate no results
       switch (op) {
       case '$eq':
+      case '$aeq':
         if (ltHelper(val, minVal, false) || gtHelper(val, maxVal, false)) {
           return [0, -1];
         }
@@ -1903,9 +1912,12 @@
      */
     Resultset.prototype.findOr = function (expressionArray) {
       var fr = null,
-          fri = 0, frlen = 0,
-          docset = [], idxset = [], idx = 0,
-          origCount = this.count();
+        fri = 0,
+        frlen = 0,
+        docset = [],
+        idxset = [],
+        idx = 0,
+        origCount = this.count();
 
       // If filter is already initialized, then we query against only those items already in filter.
       // This means no index utilization for fields, so hopefully its filtered to a smallish filteredrows.
@@ -1961,7 +1973,7 @@
      * Used for querying via a mongo-style query object.
      *
      * @param {object} query - A mongo-style query object used for filtering current results.
-     * @param {boolean} firstOnly - (Optional) Used by collection.findOne()
+     * @param {boolean=} firstOnly - (Optional) Used by collection.findOne()
      * @returns {Resultset} this resultset for further chain ops.
      * @memberof Resultset
      */
@@ -1976,15 +1988,15 @@
       }
 
       var queryObject = query || 'getAll',
-          p,
-          property,
-          queryObjectOp,
-          operator,
-          value,
-          key,
-          searchByIndex = false,
-          result = [],
-          index = null;
+        p,
+        property,
+        queryObjectOp,
+        operator,
+        value,
+        key,
+        searchByIndex = false,
+        result = [],
+        index = null;
 
       // if this was note invoked via findOne()
       firstOnly = firstOnly || false;
@@ -2058,8 +2070,7 @@
       if (operator === '$regex') {
         if (Array.isArray(value)) {
           value = new RegExp(value[0], value[1]);
-        }
-        else if (!(value instanceof RegExp)) {
+        } else if (!(value instanceof RegExp)) {
           value = new RegExp(value);
         }
       }
@@ -2071,10 +2082,10 @@
       // for now only enabling for non-chained query (who's set of docs matches index)
       // or chained queries where it is the first filter applied and prop is indexed
       var doIndexCheck = !usingDotNotation &&
-          (!this.searchIsChained || !this.filterInitialized);
+        (!this.searchIsChained || !this.filterInitialized);
 
       if (doIndexCheck && this.collection.binaryIndices[property] &&
-          indexedOpsList.indexOf(operator) !== -1) {
+        indexedOpsList.indexOf(operator) !== -1) {
         // this is where our lazy index rebuilding will take place
         // basically we will leave all indexes dirty until we need them
         // so here we will rebuild only the index tied to this property
@@ -2310,7 +2321,7 @@
     /**
      * Terminates the chain and returns array of filtered documents
      *
-     * @param {object} options - allows specifying 'forceClones' and 'forceCloneMethod' options.
+     * @param {object=} options - allows specifying 'forceClones' and 'forceCloneMethod' options.
      * @param {boolean} options.forceClones - Allows forcing the return of cloned objects even when
      *        the collection is not configured for clone object.
      * @param {string} options.forceCloneMethod - Allows overriding the default or collection specified cloning method.
@@ -2359,8 +2370,7 @@
         for (i = 0; i < len; i++) {
           result.push(clone(data[fr[i]], method));
         }
-      }
-      else {
+      } else {
         for (i = 0; i < len; i++) {
           result.push(data[fr[i]]);
         }
@@ -2442,7 +2452,7 @@
      * @param {Array} joinData - Data array to join to.
      * @param {(string|function)} leftJoinKey - Property name in this result set to join on or a function to produce a value to join on
      * @param {(string|function)} rightJoinKey - Property name in the joinData to join on or a function to produce a value to join on
-     * @param {function} mapFun - (Optional) A function that receives each matching pair and maps them into output objects - function(left,right){return joinedObject}
+     * @param {function=} mapFun - (Optional) A function that receives each matching pair and maps them into output objects - function(left,right){return joinedObject}
      * @returns {Resultset} A resultset with data in the format [{left: leftObj, right: rightObj}]
      * @memberof Resultset
      */
@@ -2529,10 +2539,11 @@
      * @implements LokiEventEmitter
      * @param {Collection} collection - A reference to the collection to work against
      * @param {string} name - The name of this dynamic view
-     * @param {object} options - (Optional) Pass in object with 'persistent' and/or 'sortPriority' options.
+     * @param {object=} options - (Optional) Pass in object with 'persistent' and/or 'sortPriority' options.
      * @param {boolean} options.persistent - indicates if view is to main internal results array in 'resultdata'
      * @param {string} options.sortPriority - 'passive' (sorts performed on call to data) or 'active' (after updates)
      * @param {number} options.minRebuildInterval - minimum rebuild interval (need clarification to docs here)
+     * @see {@link Collection#addDynamicView} to construct instances of DynamicView
      */
     function DynamicView(collection, name, options) {
       this.collection = collection;
@@ -2587,7 +2598,7 @@
      *    Since where filters do not persist correctly, this method allows
      *    restoring the view to state where user can re-apply those where filters.
      *
-     * @param {Object} options - (Optional) allows specification of 'removeWhereFilters' option
+     * @param {Object=} options - (Optional) allows specification of 'removeWhereFilters' option
      * @returns {DynamicView} This dynamic view for further chained ops.
      * @memberof DynamicView
      * @fires DynamicView.rebuild
@@ -2647,8 +2658,8 @@
      *    Unlike this dynamic view, the branched resultset will not be 'live' updated,
      *    so your branched query should be immediately resolved and not held for future evaluation.
      *
-     * @param {(string|array)} transform - Optional name of collection transform, or an array of transform steps
-     * @param {object} parameters - optional parameters (if optional transform requires them)
+     * @param {(string|array=)} transform - Optional name of collection transform, or an array of transform steps
+     * @param {object=} parameters - optional parameters (if optional transform requires them)
      * @returns {Resultset} A copy of the internal resultset for branched queries.
      * @memberof DynamicView
      */
@@ -2734,7 +2745,7 @@
      * dv.applySimpleSort("name");
      *
      * @param {string} propname - Name of property by which to sort.
-     * @param {boolean} isdesc - (Optional) If true, the sort will be in descending order.
+     * @param {boolean=} isdesc - (Optional) If true, the sort will be in descending order.
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
@@ -2818,7 +2829,7 @@
      * Implementation detail.
      * _indexOfFilterWithId() - Find the index of a filter in the pipeline, by that filter's ID.
      *
-     * @param {string|number} uid - The unique ID of the filter.
+     * @param {(string|number)} uid - The unique ID of the filter.
      * @returns {number}: index of the referenced filter in the pipeline; -1 if not found.
      */
     DynamicView.prototype._indexOfFilterWithId = function (uid) {
@@ -2909,7 +2920,7 @@
      * applyFind() - Adds or updates a mongo-style query option in the DynamicView filter pipeline
      *
      * @param {object} query - A mongo-style query object to apply to pipeline
-     * @param {string|number} uid - Optional: The unique ID of this filter, to reference it in the future.
+     * @param {(string|number)=} uid - Optional: The unique ID of this filter, to reference it in the future.
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
@@ -2926,7 +2937,7 @@
      * applyWhere() - Adds or updates a javascript filter function in the DynamicView filter pipeline
      *
      * @param {function} fun - A javascript filter function to apply to pipeline
-     * @param {string|number} uid - Optional: The unique ID of this filter, to reference it in the future.
+     * @param {(string|number)=} uid - Optional: The unique ID of this filter, to reference it in the future.
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
@@ -2942,7 +2953,7 @@
     /**
      * removeFilter() - Remove the specified filter from the DynamicView filter pipeline
      *
-     * @param {string|number} uid - The unique ID of the filter to be removed.
+     * @param {(string|number)} uid - The unique ID of the filter to be removed.
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
@@ -2979,7 +2990,9 @@
     DynamicView.prototype.data = function () {
       // using final sort phase as 'catch all' for a few use cases which require full rebuild
       if (this.sortDirty || this.resultsdirty) {
-        this.performSortPhase({suppressRebuildEvent: true});
+        this.performSortPhase({
+          suppressRebuildEvent: true
+        });
       }
       return (this.options.persistent) ? (this.resultdata) : (this.resultset.data());
     };
@@ -3069,6 +3082,20 @@
      * @param {bool} isNew - true if the document was just added to the collection.
      */
     DynamicView.prototype.evaluateDocument = function (objIndex, isNew) {
+      // if no filter applied yet, the result 'set' should remain 'everything'
+      if (!this.resultset.filterInitialized) {
+        if (this.options.persistent) {
+          this.resultdata = this.resultset.data();
+        }
+        // need to re-sort to sort new document
+        if (this.sortFunction || this.sortCriteria) {
+          this.queueSortPhase();
+        } else {
+          this.queueRebuildEvent();
+        }
+        return;
+      }
+
       var ofr = this.resultset.filteredrows;
       var oldPos = (isNew) ? (-1) : (ofr.indexOf(+objIndex));
       var oldlen = ofr.length;
@@ -3159,6 +3186,20 @@
      * removeDocument() - internal function called on collection.delete()
      */
     DynamicView.prototype.removeDocument = function (objIndex) {
+      // if no filter applied yet, the result 'set' should remain 'everything'
+      if (!this.resultset.filterInitialized) {
+        if (this.options.persistent) {
+          this.resultdata = this.resultset.data();
+        }
+        // in case changes to data altered a sort column
+        if (this.sortFunction || this.sortCriteria) {
+          this.queueSortPhase();
+        } else {
+          this.queueRebuildEvent();
+        }
+        return;
+      }
+
       var ofr = this.resultset.filteredrows;
       var oldPos = ofr.indexOf(+objIndex);
       var oldlen = ofr.length;
@@ -3225,7 +3266,7 @@
      * @constructor Collection
      * @implements LokiEventEmitter
      * @param {string} name - collection name
-     * @param {array|object} options - array of property names to be indicized OR a configuration object
+     * @param {(array|object)=} options - (optional) array of property names to be indicized OR a configuration object
      * @param {array} options.unique - array of property names to define unique constraints for
      * @param {array} options.exact - array of property names to define exact constraints for
      * @param {array} options.indices - array property names to define binary indexes for
@@ -3235,6 +3276,7 @@
      * @param {boolean} options.clone - specify whether inserts and queries clone to/from user
      * @param {string} options.cloneMethod - 'parse-stringify' (default), 'jquery-extend-deep', 'shallow'
      * @param {int} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
+     * @see {@link Loki#addCollection} for normal creation of collections
      */
     function Collection(name, options) {
       // the name of the collection
@@ -3360,9 +3402,9 @@
 
         var changedObjects = typeof Set === 'function' ? new Set() : [];
 
-        if(!changedObjects.add)
-          changedObjects.add = function(object) {
-            if(this.indexOf(object) === -1)
+        if (!changedObjects.add)
+          changedObjects.add = function (object) {
+            if (this.indexOf(object) === -1)
               this.push(object);
             return this;
           };
@@ -3372,17 +3414,17 @@
         });
 
         changedObjects.forEach(function (object) {
-          if(!hasOwnProperty.call(object, '$loki'))
+          if (!hasOwnProperty.call(object, '$loki'))
             return self.removeAutoUpdateObserver(object);
           try {
             self.update(object);
-          } catch(err) {}
+          } catch (err) {}
         });
       }
 
       this.observerCallback = observerCallback;
 
-      /**
+      /*
        * This method creates a clone of the current status of an object and associates operation and collection name,
        * so the parent db can aggregate and generate a changes object for the entire db
        */
@@ -3494,14 +3536,14 @@
     };
 
     Collection.prototype.addAutoUpdateObserver = function (object) {
-      if(!this.autoupdate || typeof Object.observe !== 'function')
+      if (!this.autoupdate || typeof Object.observe !== 'function')
         return;
 
       Object.observe(object, this.observerCallback, ['add', 'update', 'delete', 'reconfigure', 'setPrototype']);
     };
 
     Collection.prototype.removeAutoUpdateObserver = function (object) {
-      if(!this.autoupdate || typeof Object.observe !== 'function')
+      if (!this.autoupdate || typeof Object.observe !== 'function')
         return;
 
       Object.unobserve(object, this.observerCallback);
@@ -3584,8 +3626,7 @@
     Collection.prototype.setTTL = function (age, interval) {
       if (age < 0) {
         clearInterval(this.ttl.daemon);
-      }
-      else {
+      } else {
         this.ttl.age = age;
         this.ttl.ttlInterval = interval;
         this.ttl.daemon = setInterval(this.ttlDaemonFuncGen(), interval);
@@ -3611,7 +3652,7 @@
     /**
      * Ensure binary index on a certain field
      * @param {string} property - name of property to create binary index on
-     * @param {boolean} force - (Optional) flag indicating whether to construct index immediately
+     * @param {boolean=} force - (Optional) flag indicating whether to construct index immediately
      * @memberof Collection
      */
     Collection.prototype.ensureIndex = function (property, force) {
@@ -3639,7 +3680,7 @@
         (function (p, data) {
           return function (a, b) {
             var objAp = data[a][p],
-                objBp = data[b][p];
+              objBp = data[b][p];
             if (objAp !== objBp) {
               if (ltHelper(objAp, objBp, false)) return -1;
               if (gtHelper(objAp, objBp, false)) return 1;
@@ -3654,11 +3695,11 @@
       this.dirty = true; // for autosave scenarios
     };
 
-    Collection.prototype.getSequencedIndexValues = function(property) {
+    Collection.prototype.getSequencedIndexValues = function (property) {
       var idx, idxvals = this.binaryIndices[property].values;
       var result = "";
 
-      for(idx=0; idx<idxvals.length; idx++) {
+      for (idx = 0; idx < idxvals.length; idx++) {
         result += " [" + idx + "] " + this.data[idxvals[idx]][property];
       }
 
@@ -3704,13 +3745,13 @@
     };
 
     Collection.prototype.flagBinaryIndexDirty = function (index) {
-      if(this.binaryIndices[index])
+      if (this.binaryIndices[index])
         this.binaryIndices[index].dirty = true;
     };
 
     /**
      * Quickly determine number of documents in collection (or query)
-     * @param {object} query - (optional) query object to count results of
+     * @param {object=} query - (optional) query object to count results of
      * @returns {number} number of documents in the collection
      * @memberof Collection
      */
@@ -3747,7 +3788,7 @@
     /**
      * Add a dynamic view to the collection
      * @param {string} name - name of dynamic view to add
-     * @param {object} options - (optional) options to configure dynamic view with
+     * @param {object=} options - (optional) options to configure dynamic view with
      * @param {boolean} options.persistent - indicates if view is to main internal results array in 'resultdata'
      * @param {string} options.sortPriority - 'passive' (sorts performed on call to data) or 'active' (after updates)
      * @param {number} options.minRebuildInterval - minimum rebuild interval (need clarification to docs here)
@@ -3816,8 +3857,8 @@
 
     /**
      * Adds object(s) to collection, ensure object(s) have meta properties, clone it if necessary, etc.
-     * @param {object|array} doc - the document (or array of documents) to be inserted
-     * @returns {object|array} document or documents inserted
+     * @param {(object|array)} doc - the document (or array of documents) to be inserted
+     * @returns {(object|array)} document or documents inserted
      * @memberof Collection
      */
     Collection.prototype.insert = function (doc) {
@@ -3921,24 +3962,22 @@
           position,
           self = this;
 
+        obj = arr[0]; // -internal- obj ref
+        position = arr[1]; // position in data array
+
         if (!arr) {
           throw new Error('Trying to update a document not in collection.');
         }
         this.emit('pre-update', doc);
 
-        obj = arr[0];
-
         Object.keys(this.constraints.unique).forEach(function (key) {
-          self.constraints.unique[key].update(obj);
+          self.constraints.unique[key].update(obj, doc);
         });
-
-        // get current position in data array
-        position = arr[1];
 
         // operate the update
         this.data[position] = doc;
 
-        if(obj !== doc) {
+        if (obj !== doc) {
           this.addAutoUpdateObserver(doc);
         }
 
@@ -3973,7 +4012,7 @@
       // if object you are adding already has id column it is either already in the collection
       // or the object is carrying its own 'id' property.  If it also has a meta property,
       // then this is already in collection so throw error, otherwise rename to originalId and continue adding.
-      if (typeof(obj.$loki) !== 'undefined') {
+      if (typeof (obj.$loki) !== 'undefined') {
         throw new Error('Document is already in collection, please use update()');
       }
 
@@ -4021,10 +4060,17 @@
       } catch (err) {
         this.rollback();
         this.console.error(err.message);
+        this.emit('error', err);
+        throw (err); // re-throw error so user does not think it succeeded
       }
     };
 
 
+    /**
+     * Remove all documents matching supplied filter object
+     * @param {object} query - query object to filter on
+     * @memberof Collection
+     */
     Collection.prototype.removeWhere = function (query) {
       var list;
       if (typeof query === 'function') {
@@ -4114,15 +4160,17 @@
     /**
      * Get by Id - faster than other methods because of the searching algorithm
      * @param {int} id - $loki id of document you want to retrieve
-     * @returns {object|null} Object reference if document was found, or null if not
+     * @param {boolean} returnPosition - if 'true' we will return [object, position]
+     * @returns {(object|array|null)} Object reference if document was found, null if not,
+     *     or an array if 'returnPosition' was passed.
      * @memberof Collection
      */
     Collection.prototype.get = function (id, returnPosition) {
       var retpos = returnPosition || false,
-          data = this.idIndex,
-          max = data.length - 1,
-          min = 0,
-          mid = (min + max) >> 1;
+        data = this.idIndex,
+        max = data.length - 1,
+        min = 0,
+        mid = (min + max) >> 1;
 
       id = typeof id === 'number' ? id : parseInt(id, 10);
 
@@ -4169,8 +4217,7 @@
       var result = this.constraints.unique[field].get(value);
       if (!this.cloneObjects) {
         return result;
-      }
-      else {
+      } else {
         return clone(result, this.cloneMethod);
       }
     };
@@ -4178,7 +4225,7 @@
     /**
      * Find one object by index property, by property equal to value
      * @param {object} query - query object used to perform search with
-     * @returns {object|null} First matching document, or null if none
+     * @returns {(object|null)} First matching document, or null if none
      * @memberof Collection
      */
     Collection.prototype.findOne = function (query) {
@@ -4192,8 +4239,7 @@
       } else {
         if (!this.cloneObjects) {
           return result;
-        }
-        else {
+        } else {
           return clone(result, this.cloneMethod);
         }
       }
@@ -4236,8 +4282,7 @@
       });
       if (!this.cloneObjects) {
         return results;
-      }
-      else {
+      } else {
         return cloneObjectArray(results, this.cloneMethod);
       }
     };
@@ -4335,8 +4380,7 @@
       });
       if (!this.cloneObjects) {
         return results;
-      }
-      else {
+      } else {
         return cloneObjectArray(results, this.cloneMethod);
       }
     };
@@ -4363,7 +4407,7 @@
      * @param {array} joinData - array of documents to 'join' to this collection
      * @param {string} leftJoinProp - property name in collection
      * @param {string} rightJoinProp - property name in joinData
-     * @param {function} mapFun - (Optional) map function to use
+     * @param {function=} mapFun - (Optional) map function to use
      * @returns {Resultset} Result of the mapping operation
      * @memberof Collection
      */
@@ -4735,14 +4779,19 @@
     UniqueIndex.prototype.byId = function (id) {
       return this.keyMap[this.lokiMap[id]];
     };
-    UniqueIndex.prototype.update = function (obj) {
-      if (this.lokiMap[obj.$loki] !== obj[this.field]) {
+    /**
+     * Updates a document's unique index given an updated object.
+     * @param  {Object} obj Original document object
+     * @param  {Object} doc New document object (likely the same as obj)
+     */
+    UniqueIndex.prototype.update = function (obj, doc) {
+      if (this.lokiMap[obj.$loki] !== doc[this.field]) {
         var old = this.lokiMap[obj.$loki];
-        this.set(obj);
+        this.set(doc);
         // make the old key fail bool test, while avoiding the use of delete (mem-leak prone)
         this.keyMap[old] = undefined;
       } else {
-        this.keyMap[obj[this.field]] = obj;
+        this.keyMap[obj[this.field]] = doc;
       }
     };
     UniqueIndex.prototype.remove = function (key) {
